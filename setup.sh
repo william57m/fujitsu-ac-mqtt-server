@@ -13,13 +13,13 @@ ExecStart=/usr/bin/python3 /home/pi/fujitsu-ac-mqtt-server/server.py
 WantedBy=multi-user.target" > "$service_path"
 
 # Print
-printf "fujiac.service created" 
+printf "fujiac.service created\n" 
 
 sleep 3
 
 # Reload deamon and enable service
 systemctl daemon-reload
-systemctl enable fujitsu-ac.service
+systemctl enable fujiac.service
 
 # Print
-printf "fujiac.service enabled"
+printf "fujiac.service enabled\n"
