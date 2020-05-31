@@ -1,6 +1,7 @@
 import json
 import paho.mqtt.client as mqtt
 import re
+import syslog
 
 from fuji import FujiAC
 
@@ -22,6 +23,7 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
 
   print(f'Received: {msg.topic} / Message: {msg.payload.decode("utf-8")}')
+  syslog.syslog(f'Received: {msg.topic} / Message: {msg.payload.decode("utf-8")}')
 
   # Command to trigger publish update
   if msg.topic == 'fujiac/state/send':
