@@ -2,7 +2,6 @@ import json
 import paho.mqtt.client as mqtt
 import re
 
-from rpi_rf import RFDevice
 from fuji import FujiAC
 
 # MQTT Settings
@@ -24,7 +23,7 @@ def on_message(client, userdata, msg):
 
   print(f'Received: {msg.topic} / Message: {msg.payload.decode("utf-8")}')
 
-  # Command to publish update
+  # Command to trigger publish update
   if msg.topic == 'fujiac/state/send':
     state = ac.get_state()
     client.publish('fujiac/state/get', json.dumps(state))
@@ -36,31 +35,17 @@ def on_message(client, userdata, msg):
     ac.set_fan_mode(msg.payload.decode('utf-8'))
   elif msg.topic == 'fujiac/temperature/set':
     ac.set_temperature(int(float(msg.payload)))
-
-  # Send command
-  if msg.topic == 'fujiac/swing/set':
+  elif msg.topic == 'fujiac/swing/set':
     ac.toggle_swing()
-    rfdevice.tx_code(15002)
   elif msg.topic == 'fujiac/airclean/set':
     ac.toggle_airclean()
-    rfdevice.tx_code(15003)
   elif msg.topic == 'fujiac/wing/set':
-    rfdevice.tx_code(15004)
-  elif re.match(r'fujiac/.*/set', msg.topic):
-    code = ac.get_rf_code()
-    print(f'SEND RF CODE: {code}')
-    rfdevice.tx_code(code)
+    ac.set_wing()
 
   # Publish update
   if re.match(r'fujiac/.*/set', msg.topic):
     state = ac.get_state()
     client.publish('fujiac/state/get', json.dumps(state))
-
-# Init RF
-gpio = 17
-rfdevice = RFDevice(gpio)
-rfdevice.enable_tx()
-rfdevice.tx_repeat = 10
 
 # Init AC
 ac = FujiAC()

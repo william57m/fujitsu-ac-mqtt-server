@@ -1,33 +1,40 @@
-from enum import Enum
+import codes
 
-class Mode(Enum):
+from enum import Enum
+from rpi_rf import RFDevice
+
+class ExtendEnum(Enum):
+  def to_int(self):
+    items = [i.value for i in self.__class__]
+    return items.index(self.value)
+
+class Mode(ExtendEnum):
   AUTO = 'auto'
   COOL = 'cool'
   DRY = 'dry'
   FAN = 'fan_only'
   OFF = 'off'
 
-class FanMode(Enum):
+class FanMode(ExtendEnum):
   AUTO = 'auto'
   HIGH = 'high'
   MEDIUM = 'medium'
   LOW = 'low'
   QUIET = 'quiet'
 
-def mode_to_int(mode, mode_class):
-  modes = [i.value for i in mode_class]
-  return modes.index(mode)
-
-def fan_mode_to_int(mode):
-  modes = [i.value for i in FanMode]
-  return modes.index(mode)
 
 class FujiAC:
 
-  def __init__(self):
-    self.reset()
+  def __init__(self, gpio=17):
+    # Init AC state
+    self.reset(False)
 
-  def reset(self):
+    # Init RF
+    self.rfdevice = RFDevice(gpio)
+    self.rfdevice.enable_tx()
+    self.rfdevice.tx_repeat = 10
+
+  def reset(self, commit=True):
     self.temperature = 22
     self.previous_mode = Mode.OFF
     self.mode = Mode.OFF
@@ -35,23 +42,34 @@ class FujiAC:
     self.swing = False
     self.air_clean = False
 
+    if commit:
+      self.commit()
+
   def set_temperature(self, temperature):
     self.previous_mode = self.mode
     self.temperature = temperature
+    self.commit()
 
   def set_mode(self, mode):
     self.previous_mode = self.mode
     self.mode = Mode(mode)
+    self.commit()
 
   def set_fan_mode(self, mode):
     self.previous_mode = self.mode
     self.fan_mode = FanMode(mode)
+    self.commit()
 
   def toggle_swing(self):
     self.swing = not self.swing
+    self.commit(codes.CODE_TOGGLE_SWING)
 
   def toggle_airclean(self):
     self.air_clean = not self.air_clean
+    self.commit(codes.CODE_TOGGLE_AIRCLEAN)
+
+  def set_wing(self):
+    self.commit(codes.CODE_SET_WING)
 
   def get_state(self, key=None):
     result = {
@@ -63,9 +81,15 @@ class FujiAC:
     }
     return result[key] if key else result
 
-  def get_rf_code(self):
+  def __get_rf_code(self):
     if self.mode == Mode.OFF:
-      return 15001
+      return codes.CODE_TURN_OFF
     else:
       flag_on = int(self.previous_mode == Mode.OFF and self.mode != Mode.OFF)
-      return int(f'{self.temperature}{mode_to_int(self.mode.value, Mode)}{mode_to_int(self.fan_mode.value, FanMode)}{flag_on}')
+      return int(f'{self.temperature}{self.mode.value.to_int()}{self.fan_mode.value.to_int()}{flag_on}')
+
+  def commit(self, code=None):
+    if code is None:
+      code = self.__get_rf_code()
+    print(f'SEND RF CODE: {code}')
+    self.rfdevice.tx_code(code)
