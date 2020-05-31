@@ -86,7 +86,7 @@ class FujiAC:
       return codes.CODE_TURN_OFF
     else:
       flag_on = int(self.previous_mode == Mode.OFF and self.mode != Mode.OFF)
-      return int(f'{self.temperature}{self.mode.value.to_int()}{self.fan_mode.value.to_int()}{flag_on}')
+      return int(f'{self.temperature}{self.mode.to_int()}{self.fan_mode.to_int()}{flag_on}')
 
   def commit(self, code=None):
     if code is None:
