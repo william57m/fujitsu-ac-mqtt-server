@@ -11,8 +11,8 @@ cd fujitsu-ac-mqtt-server
 
 Run it as a service
 ```bash
-./setup.sh
-systemctl start fujitsu-ac.service
+sudo sh ./setup.sh
+sudo systemctl start fujiac.service
 ```
 
 Run it manually
@@ -38,10 +38,4 @@ On each of these commands, the server publish `fujiac/state/get` to return the s
 Example of status payload
 ```json
 {"temperature": 25, "mode": "off", "fan_mode": "quiet", "swing": "off", "air_clean": false}
-```
-
-## Logs
-
-```bash
-journalctl -u fujiac -f
 ```
