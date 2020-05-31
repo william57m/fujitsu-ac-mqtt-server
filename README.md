@@ -2,6 +2,24 @@
 
 This server allow to send command to [Fujitsu AC Remote for Arduino](https://github.com/william57m/fujitsu-ac-arduino)
 
+## Setup
+
+```bash
+git clone git@github.com:william57m/fujitsu-ac-mqtt-server.git
+cd fujitsu-ac-mqtt-server
+```
+
+Run it as a service
+```bash
+./setup.sh
+systemctl start fujitsu-ac.service
+```
+
+Run it manually
+```bash
+python3 server.py
+```
+
 ## MQTT Commands
 
 Here is the list of command to publish to set the state of the AC.
@@ -20,4 +38,10 @@ On each of these commands, the server publish `fujiac/state/get` to return the s
 Example of status payload
 ```json
 {"temperature": 25, "mode": "off", "fan_mode": "quiet", "swing": "off", "air_clean": false}
+```
+
+## Logs
+
+```bash
+journalctl -u fujiac -f
 ```

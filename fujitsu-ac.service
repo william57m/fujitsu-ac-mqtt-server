@@ -1,0 +1,15 @@
+[Unit]
+Description=Fujitsu AC
+After=syslog.target
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+ExecStart=/usr/bin/python3 /home/fujitsu-ac-mqtt-server/server.py
+
+# Give the script some time to startup
+TimeoutSec=300
+
+[Install]
+WantedBy=multi-user.target
