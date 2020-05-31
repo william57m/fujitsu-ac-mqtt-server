@@ -41,6 +41,8 @@ def on_message(client, userdata, msg):
     ac.toggle_airclean()
   elif msg.topic == 'fujiac/wing/set':
     ac.set_wing()
+  elif msg.topic == 'fujiac/reset/set':
+    ac.reset()
 
   # Publish update
   if re.match(r'fujiac/.*/set', msg.topic):
