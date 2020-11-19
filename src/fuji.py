@@ -1,4 +1,5 @@
 import codes
+import syslog
 
 from enum import Enum
 from rpi_rf import RFDevice
@@ -48,6 +49,8 @@ class FujiAC:
   def set_temperature(self, temperature):
     self.previous_mode = self.mode
     self.temperature = temperature
+    if self.mode == Mode.OFF:
+      self.set_mode(Mode.AUTO.value)
     self.commit()
 
   def set_mode(self, mode):
@@ -92,4 +95,5 @@ class FujiAC:
     if code is None:
       code = self.__get_rf_code()
     print(f'SEND RF CODE: {code}')
+    syslog.syslog(f'SEND RF CODE: {code}')
     self.rfdevice.tx_code(code)
