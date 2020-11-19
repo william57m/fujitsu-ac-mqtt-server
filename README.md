@@ -2,11 +2,17 @@
 
 This server allow to send command to [Fujitsu AC Remote for Arduino](https://github.com/william57m/fujitsu-ac-arduino)
 
-## Setup
+## Regular installation
 
+Clone the repository
 ```bash
 git clone git@github.com:william57m/fujitsu-ac-mqtt-server.git
 cd fujitsu-ac-mqtt-server
+```
+
+Install the requirements
+```
+pip install -r requirements.txt
 ```
 
 Run it as a service
@@ -17,7 +23,29 @@ sudo systemctl start fujiac.service
 
 Run it manually
 ```bash
-python3 server.py
+python3 src/server.py
+```
+
+## Installation with docker
+
+Run with docker
+```
+docker run \
+  --device /dev/gpiomem \
+  -e MQTT_HOST='192.168.2.110' \
+  william57m/fujiac-mqtt-server:latest
+```
+
+## Build and publish
+
+Build
+```
+docker build --tag william57m/fujiac-mqtt-server .
+```
+
+Deploy
+```
+docker push william57m/fujiac-mqtt-server
 ```
 
 ## MQTT Commands
